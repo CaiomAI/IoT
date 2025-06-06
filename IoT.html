@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curso Interativo de IoT: Da Teoria à Prática</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Calm Harmony Neutrals -->
+    <!-- Application Structure Plan: Single-page application with a fixed sidebar navigation for clear, progressive learning. Each main topic (IoT Fundamentals, Use Cases, Practical Project, Documentation, 3D Printing, Conclusion) is a major section. The Practical Project is further broken down. Interactions include clickable navigation, expandable content, code snippets with copy-to-clipboard, and HTML/CSS diagrams. This structure supports progressive learning and easy reference. -->
+    <!-- Visualization & Content Choices: 
+        - IoT System Architecture Diagram: Goal: Explain system components and data flow. Viz/Presentation: HTML/CSS boxes & arrows. Interaction: None (static). Justification: Clear visual of the system. Library/Method: Tailwind CSS.
+        - Node-RED Flow Diagram: Goal: Illustrate data processing. Viz/Presentation: HTML/CSS styled blocks. Interaction: None (static). Justification: Visualizes logic. Library/Method: Tailwind CSS.
+        - ESP32 Code Block: Goal: Provide practical code. Viz/Presentation: <pre><code>. Interaction: Copy button. Justification: Easy code access. Library/Method: HTML, JS.
+        - Docker Compose Snippet: Goal: Provide service configuration. Viz/Presentation: <pre><code>. Interaction: Copy button. Justification: Practical setup. Library/Method: HTML, JS.
+        - Use Case Examples: Goal: Showcase IoT applications. Viz/Presentation: Text descriptions with icons (Unicode). Interaction: None. Justification: Overview of possibilities. Library/Method: Tailwind.
+        - Illustrative Temperature Chart: Goal: Preview potential dashboard output. Viz/Presentation: Chart.js Line Chart. Interaction: Hover for tooltips. Justification: Connects project steps to visualization goal. Library/Method: Chart.js on Canvas.
+        - Documentation Links & Tables: Goal: Provide further reading and quick comparisons. Viz/Presentation: Text with hyperlinks, HTML tables. Interaction: Click to open new tab. Justification: Easy access to official resources and key info. Library/Method: HTML.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif; /* Using Inter as a common, clean font */
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        .sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+        .content-section {
+            scroll-margin-top: 100px; /* Adjusted Offset for taller fixed header/nav */
+        }
+        .code-block {
+            position: relative;
+            background-color: #2d3748; /* Tailwind gray-800 */
+            color: #e2e8f0; /* Tailwind gray-200 */
+            padding: 1rem;
+            border-radius: 0.375rem; /* rounded-md */
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.875rem; /* text-sm */
+        }
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background-color: #4a5568; /* Tailwind gray-600 */
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem; /* rounded-sm */
+            font-size: 0.75rem; /* text-xs */
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .copy-btn:hover {
+            background-color: #2d3748; /* Tailwind gray-800 */
+        }
+        .diagram-box {
+            border: 2px solid #059669; /* emerald-700 */
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            text-align: center;
+            background-color: #f0fdf4; /* emerald-50 */
+        }
+        .diagram-arrow {
+            font-size: 1.5rem; /* text-2xl */
+            color: #059669; /* emerald-700 */
+            margin: 0 0.5rem;
+        }
+        details > summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #047857; /* emerald-800 */
+            padding: 0.5rem;
+            background-color: #d1fae5; /* emerald-100 */
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+        }
+        details[open] > summary {
+            background-color: #a7f3d0; /* emerald-200 */
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; 
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .external-link {
+            color: #059669; /* emerald-700 */
+            text-decoration: underline;
+        }
+        .external-link:hover {
+            color: #047857; /* emerald-800 */
+        }
+        table.comparison-table {
+            width: 100%;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            border-collapse: collapse;
+        }
+        table.comparison-table th, table.comparison-table td {
+            border: 1px solid #cbd5e1; /* Tailwind gray-300 */
+            padding: 0.5rem;
+            text-align: left;
+        }
+        table.comparison-table th {
+            background-color: #f0fdf4; /* emerald-50 */
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800 antialiased">
+
+    <!-- Header -->
+    <header class="bg-emerald-700 text-white p-4 shadow-md fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto flex flex-wrap justify-between items-center">
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold">Curso Interativo de IoT: Da Teoria à Prática</h1>
+                <p class="text-xs md:text-sm">Fatec Sorocaba - Prof. Caio S. Mascarenhas</p>
+            </div>
+            <button id="mobileMenuButton" class="md:hidden p-2 rounded-md hover:bg-emerald-800">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="flex pt-24 md:pt-20">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="sidebar w-64 bg-white shadow-lg p-4 space-y-2 fixed md:sticky top-24 md:top-20 h-screen-minus-header overflow-y-auto transform -translate-x-full md:translate-x-0 z-40">
+            <nav>
+                <a href="#introducao" class="block py-2 px-3 rounded-md hover:bg-emerald-50 hover:text-emerald-700 font-medium">🏠 Introdução</a>
+                <a href="#fundamentos-iot" class="block py-2 px-3 rounded-md hover:bg-emerald-50 hover:text-emerald-700 font-medium">📚 Módulo 1: Fundamentos</a>
+                <a href="#casos-de-uso" class="block py-2 px-3 rounded-md hover:bg-emerald-50 hover:text-emerald-700 font-medium">💡 Módulo 2: Casos de Uso</a>
+                <div>
+                    <a href="#projeto-pratico" class="block py-2 px-3 rounded-md hover:bg-emerald-50 hover:text-emerald-700 font-medium">🛠️ Módulo 3: Projeto Prático</a>
+                    <div class="ml-4 mt-1 space-y-1 border-l-2 border-emerald-200 pl-2">
+                        <a href="#projeto-visao-geral" class="block py-1 px-2 text-sm rounded-md hover:bg-emerald-50 hover:text-emerald-600">Visão Geral</a>
+                        <a href="#projeto-hardware" class="block py-1 px-2 text-sm rounded-md hover:bg-emerald-50 hover:text-emerald-600">Hardware</a>
+                        <a href="#projeto-raspberry" class="block py-1 px-2 text-sm rounded-md hover:bg-emerald-50 hover:text-emerald-600">Setup Raspberry Pi</a>
+                        <a href="#projeto-esp32" class="block py-1 px-2 text-sm rounded-md hover:bg-emerald-50 hover:text-emerald-600">Programando ESP32</a>
+                        <a href="#projeto-nodered" class="block py-1 px-2 text-sm rounded-md hover:bg-emerald-50 hover:text-emerald-600">Node-RED</a>
+                        <a href="#projeto-grafana" class="block py-1 px-2 text-sm rounded-md hover:bg-emerald-50 hover:text-emerald-600">Grafana</a>
+                    </div>
+                </div>
+                <a href="#documentacao" class="block py-2 px-3 rounded-md hover:bg-emerald-50 hover:text-emerald-700 font-medium">📄 Documentação</a>
+                <a href="#impressao-3d" class="block py-2 px-3 rounded-md hover:bg-emerald-50 hover:text-emerald-700 font-medium">🏗️ Módulo 4: Impressão 3D</a>
+                <a href="#conclusao" class="block py-2 px-3 rounded-md hover:bg-emerald-50 hover:text-emerald-700 font-medium">🏁 Conclusão</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 md:p-8 space-y-12 bg-stone-100 overflow-y-auto">
+            
+            <section id="introducao" class="content-section bg-white p-6 rounded-lg shadow">
+                <h2 class="text-3xl font-semibold text-emerald-700 mb-4">🏠 Bem-vindo ao Curso Interativo de IoT!</h2>
+                <p class="text-lg text-stone-700 mb-4">
+                    Este curso foi desenhado para apresentar o vasto universo da Internet das Coisas (IoT), desde os conceitos fundamentais até a criação de um protótipo funcional. Você, aluno de qualquer área do conhecimento, descobrirá como a IoT está transformando indústrias, criando novas oportunidades e como você pode fazer parte dessa revolução. Exploraremos casos de uso em diversos setores e, em seguida, colocaremos a mão na massa com um projeto prático de monitoramento de compressores de ar.
+                </p>
+                <p class="text-stone-700">
+                    O objetivo principal é demonstrar as inúmeras possibilidades que a IoT permite e provar que é viável criar um protótipo funcional para validar ideias de melhoria de processos, monitoramento de equipamentos e muito mais, mesmo com recursos limitados. Ao final, esperamos que você se sinta inspirado e capacitado para iniciar seus próprios projetos em IoT.
+                </p>
+            </section>
+
+            <section id="fundamentos-iot" class="content-section bg-white p-6 rounded-lg shadow">
+                <h2 class="text-3xl font-semibold text-emerald-700 mb-4">📚 Módulo 1: Fundamentos de IoT</h2>
+                <p class="text-lg text-stone-700 mb-4">
+                    Neste módulo, mergulharemos nos conceitos essenciais que formam a base da Internet das Coisas. Compreender esses fundamentos é crucial para identificar oportunidades de aplicação e para desenvolver soluções eficazes. Abordaremos o que é IoT, seus principais componentes, arquiteturas comuns e as tecnologias que impulsionam essa área.
+                </p>
+                
+                <h3 class="text-2xl font-medium text-emerald-600 mt-6 mb-2">O que é Internet das Coisas (IoT)?</h3>
+                <p class="text-stone-700 mb-3">
+                    Internet das Coisas refere-se à rede de objetos físicos ("coisas") que são incorporados com sensores, software e outras tecnologias com o objetivo de conectar e trocar dados com outros dispositivos e sistemas pela internet. Essas "coisas" podem variar desde eletrodomésticos comuns até sofisticadas ferramentas industriais.
+                </p>
+
+                <h3 class="text-2xl font-medium text-emerald-600 mt-6 mb-2">Componentes Chave de um Sistema IoT</h3>
+                <ul class="list-disc list-inside text-stone-700 space-y-2 mb-3">
+                    <li><strong>Dispositivos/Sensores:</strong> Coletam dados do ambiente (ex: temperatura, movimento, luz) ou executam ações.</li>
+                    <li><strong>Conectividade:</strong> Mecanismos para enviar dados para a nuvem ou um servidor local (ex: Wi-Fi, Bluetooth, LoRaWAN, MQTT, HTTP).</li>
+                    <li><strong>Processamento de Dados:</strong> Software que analisa os dados coletados, podendo ocorrer localmente (edge computing) ou na nuvem.</li>
+                    <li><strong>Interface do Usuário:</strong> Forma como o usuário interage com o sistema IoT (ex: aplicativo móvel, dashboard web).</li>
+                </ul>
+
+                <h3 class="text-2xl font-medium text-emerald-600 mt-6 mb-2">Arquitetura Típica de IoT</h3>
+                <p class="text-stone-700 mb-3">
+                    Embora existam variações, uma arquitetura IoT comum envolve camadas:
+                </p>
+                <div class="space-y-4">
+                    <div class="diagram-box"><strong>Camada de Percepção (Sensores/Atuadores)</strong><br>Coleta dados / Executa ações</div>
+                    <div class="flex justify-center items-center"><span class="diagram-arrow">↓</span></div>
+                    <div class="diagram-box"><strong>Camada de Rede (Conectividade)</strong><br>Transmissão de dados (WiFi, MQTT, etc.)</div>
+                    <div class="flex justify-center items-center"><span class="diagram-arrow">↓</span></div>
+                    <div class="diagram-box"><strong>Camada de Processamento (Edge/Cloud)</strong><br>Análise, armazenamento, tomada de decisão</div>
+                    <div class="flex justify-center items-center"><span class="diagram-arrow">↓</span></div>
+                    <div class="diagram-box"><strong>Camada de Aplicação (Interface do Usuário)</strong><br>Visualização, controle, relatórios</div>
+                </div>
+            </section>
+
+            <section id="casos-de-uso" class="content-section bg-white p-6 rounded-lg shadow">
+                <h2 class="text-3xl font-semibold text-emerald-700 mb-4">💡 Módulo 2: Casos de Uso de IoT</h2>
+                <p class="text-lg text-stone-700 mb-4">
+                    A versatilidade da IoT permite sua aplicação em uma miríade de setores, otimizando processos, gerando insights valiosos e criando novas experiências. Nesta seção, exploraremos exemplos práticos de como a IoT está sendo utilizada para resolver problemas e agregar valor em diferentes áreas. Isso ajudará a visualizar o potencial transformador dessa tecnologia.
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-emerald-50 p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-emerald-700 mb-2">🏥 Saúde (Healthcare)</h3>
+                        <p class="text-stone-700">
+                            Monitoramento remoto de pacientes, dispositivos vestíveis (wearables) para coleta de sinais vitais, gestão inteligente de leitos hospitalares, otimização da cadeia de suprimentos de medicamentos e equipamentos médicos, telemedicina aprimorada.
+                        </p>
+                    </div>
+                    <div class="bg-emerald-50 p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-emerald-700 mb-2">🏭 Indústria (Industrial IoT - IIoT)</h3>
+                        <p class="text-stone-700">
+                            Manutenção preditiva de máquinas (como nosso projeto prático!), monitoramento e otimização de processos produtivos, gestão de ativos, controle de qualidade automatizado, segurança do trabalhador, logística inteligente (smart logistics).
+                        </p>
+                    </div>
+                    <div class="bg-emerald-50 p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-emerald-700 mb-2">✈️ Turismo e Hotelaria</h3>
+                        <p class="text-stone-700">
+                            Quartos de hotel inteligentes (controle de luz, temperatura, entretenimento por voz), check-in/check-out automatizado, personalização da experiência do hóspede, gestão de energia, segurança aprimorada, rastreamento de bagagens.
+                        </p>
+                    </div>
+                    <div class="bg-emerald-50 p-4 rounded-lg shadow">
+                        <h3 class="text-xl font-semibold text-emerald-700 mb-2">📊 Gestão e Cidades Inteligentes</h3>
+                        <p class="text-stone-700">
+                            Gestão de tráfego inteligente, monitoramento ambiental (qualidade do ar, ruído), iluminação pública eficiente, coleta de lixo otimizada, estacionamentos inteligentes, gestão de recursos hídricos, segurança pública com câmeras e sensores.
+                        </p>
+                    </div>
+                     <div class="bg-emerald-50 p-4 rounded-lg shadow md:col-span-2">
+                        <h3 class="text-xl font-semibold text-emerald-700 mb-2">🚜 Agricultura (Smart Agriculture)</h3>
+                        <p class="text-stone-700">
+                            Monitoramento de solo e clima para otimizar irrigação e fertilização, rastreamento de gado, drones para pulverização e imageamento de plantações, automação de estufas, gestão de safras.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="projeto-pratico" class="content-section">
+                <h2 class="text-3xl font-semibold text-emerald-700 mb-4">🛠️ Módulo 3: Projeto Prático - Monitoramento de Compressores</h2>
+                <p class="text-lg text-stone-700 mb-6 bg-white p-6 rounded-lg shadow">
+                    Chegou a hora de aplicar os conhecimentos! Neste módulo, desenvolveremos passo a passo um sistema de monitoramento de vibração e temperatura para compressores de ar. Este projeto prático demonstrará como integrar hardware, software e protocolos de comunicação para criar uma solução IoT funcional, desde a coleta de dados com sensores até a visualização em dashboards. Este é o cerne do curso, onde a teoria encontra a prática.
+                </p>
+
+                <div id="projeto-visao-geral" class="content-section bg-white p-6 rounded-lg shadow mb-6">
+                    <h3 class="text-2xl font-medium text-emerald-600 mb-3">Visão Geral do Projeto</h3>
+                    <p class="text-stone-700 mb-3">
+                        Nosso objetivo é construir um sistema que utilize um sensor MPU6050 para capturar dados de temperatura e movimento (aceleração e giroscópio) de um compressor. Esses dados serão processados por um microcontrolador ESP32 e enviados via protocolo MQTT para um broker Mosquitto rodando em um Raspberry Pi. No Raspberry Pi, utilizaremos Node-RED para tratar os dados, armazená-los em um banco de dados InfluxDB e, finalmente, criar dashboards profissionais com Grafana para visualização e análise.
+                    </p>
+                    <p class="text-stone-700 font-semibold mb-2">Fluxo de Dados Simplificado:</p>
+                    <div class="flex flex-col md:flex-row justify-around items-center space-y-2 md:space-y-0 md:space-x-2 text-sm">
+                        <div class="diagram-box w-full md:w-auto">Sensor MPU6050<br>(Temperatura, Aceleração, Giroscópio)</div>
+                        <span class="diagram-arrow hidden md:inline">→</span><span class="diagram-arrow md:hidden">↓</span>
+                        <div class="diagram-box w-full md:w-auto">ESP32<br>(Coleta e Envio MQTT)</div>
+                        <span class="diagram-arrow hidden md:inline">→</span><span class="diagram-arrow md:hidden">↓</span>
+                        <div class="diagram-box w-full md:w-auto">Raspberry Pi<br>(Mosquitto Broker)</div>
+                        <span class="diagram-arrow hidden md:inline">→</span><span class="diagram-arrow md:hidden">↓</span>
+                        <div class="diagram-box w-full md:w-auto">Node-RED<br>(Processamento, InfluxDB input)</div>
+                        <span class="diagram-arrow hidden md:inline">→</span><span class="diagram-arrow md:hidden">↓</span>
+                        <div class="diagram-box w-full md:w-auto">InfluxDB<br>(Armazenamento)</div>
+                        <span class="diagram-arrow hidden md:inline">→</span><span class="diagram-arrow md:hidden">↓</span>
+                        <div class="diagram-box w-full md:w-auto">Grafana<br>(Dashboards)</div>
+                    </div>
+                </div>
+
+                <details id="projeto-hardware" class="content-section bg-white p-6 rounded-lg shadow mb-6">
+                    <summary class="text-2xl">Passo 1: Hardware e Montagem</summary>
+                    <div class="mt-4">
+                        <p class="text-stone-700 mb-3">Para este projeto, precisaremos dos seguintes componentes:</p>
+                        <ul class="list-disc list-inside text-stone-700 space-y-1 mb-3">
+                            <li><strong>ESP32:</strong> Um microcontrolador com Wi-Fi e Bluetooth integrados. Usaremos o modelo ESP32-WROOM-32 DevKit.</li>
+                            <li><strong>Sensor MPU6050:</strong> Um módulo que combina acelerômetro e giroscópio de 3 eixos, além de um sensor de temperatura.</li>
+                            <li><strong>Raspberry Pi:</strong> Qualquer modelo a partir do 3B+ servirá. Será nosso servidor para o broker MQTT e as ferramentas de dados. (Recomendado: Raspberry Pi 4 com pelo menos 2GB de RAM).</li>
+                            <li><strong>Cartão microSD:</strong> Para o sistema operacional do Raspberry Pi (mínimo 16GB, classe 10).</li>
+                            <li><strong>Fonte de alimentação:</strong> Adequada para o ESP32 e para o Raspberry Pi.</li>
+                            <li><strong>Protoboard e Jumpers:</strong> Para conectar o ESP32 ao MPU6050.</li>
+                        </ul>
+                        <h4 class="text-lg font-medium text-emerald-600 mt-4 mb-2">Conexão ESP32 e MPU6050 (I2C):</h4>
+                        <p class="text-stone-700 mb-1">O MPU6050 se comunica via protocolo I2C. Conecte os pinos da seguinte forma:</p>
+                        <ul class="list-disc list-inside text-stone-700 space-y-1">
+                            <li>MPU6050 VCC → ESP32 3V3</li>
+                            <li>MPU6050 GND → ESP32 GND</li>
+                            <li>MPU6050 SCL → ESP32 GPIO22 (SCL padrão do ESP32)</li>
+                            <li>MPU6050 SDA → ESP32 GPIO21 (SDA padrão do ESP32)</li>
+                            <li>(Opcional) MPU6050 INT → Um pino digital do ESP32 (ex: GPIO15), se for usar interrupções.</li>
+                        </ul>
+                        <p class="text-sm text-amber-700 mt-2">💡 Dica: Sempre verifique o pinout específico do seu modelo de ESP32, pois pode haver variações.</p>
+                    </div>
+                </details>
+
+                <details id="projeto-raspberry" class="content-section bg-white p-6 rounded-lg shadow mb-6">
+                    <summary class="text-2xl">Passo 2: Configurando o Ambiente no Raspberry Pi</summary>
+                    <div class="mt-4">
+                        <p class="text-stone-700 mb-3">
+                            O Raspberry Pi será o coração do nosso sistema de coleta e visualização de dados. Vamos instalar Mosquitto (broker MQTT), Node-RED, InfluxDB (banco de dados) e Grafana (dashboards) usando Docker e Docker Compose para facilitar a gestão dos serviços.
+                        </p>
+                        <h4 class="text-lg font-medium text-emerald-600 mt-4 mb-2">1. Preparar o Raspberry Pi:</h4>
+                        <p class="text-stone-700 mb-3">
+                            Instale o Raspberry Pi OS (anteriormente Raspbian) em seu cartão microSD. Conecte-se à sua rede Wi-Fi ou Ethernet. Abra um terminal.
+                        </p>
+                        <h4 class="text-lg font-medium text-emerald-600 mt-4 mb-2">2. Instalar Docker e Docker Compose Plugin:</h4>
+                        <pre class="code-block mb-3">
+sudo apt-get update && sudo apt-get upgrade -y
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+sudo apt-get install -y docker-compose-plugin</pre>
+                        <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                        <p class="text-sm text-stone-600 mb-3">Após adicionar seu usuário ao grupo docker (`sudo usermod -aG docker $USER`), pode ser necessário fazer logout e login novamente, ou reiniciar o Raspberry Pi para que as alterações de grupo tenham efeito. Use `docker compose` (com espaço) nos comandos seguintes.</p>
+                        
+                        <h4 class="text-lg font-medium text-emerald-600 mt-4 mb-2">3. Criar Estrutura de Diretórios e Arquivos de Configuração:</h4>
+                        <p class="text-stone-700 mb-1">Crie o diretório principal do projeto e as subpastas para os volumes do Docker. Em seguida, crie os arquivos de configuração para o Mosquitto:</p>
+                        <pre class="code-block mb-3">
+# Cria a estrutura de pastas no diretório home do usuário atual
+mkdir -p ~/iot_compressor/mosquitto/{config,data,log} \
+~/iot_compressor/nodered_data \
+~/iot_compressor/influxdb_data \
+~/iot_compressor/grafana_data
+
+cd ~/iot_compressor
+
+# Cria o arquivo de configuração do Mosquitto
+sudo touch ./mosquitto/config/mosquitto.conf
+echo "listener 1883
+allow_anonymous false
+password_file /mosquitto/config/password_file
+persistence true
+persistence_location /mosquitto/data/
+log_dest file /mosquitto/log/mosquitto.log" | sudo tee ./mosquitto/config/mosquitto.conf > /dev/null
+
+# Cria o arquivo de senhas do Mosquitto e adiciona o usuário 'mava' com senha 'mava'
+sudo touch ./mosquitto/config/password_file
+sudo mosquitto_passwd -b ./mosquitto/config/password_file mava mava</pre>
+                        <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                        <p class="text-sm text-amber-700 mt-2 mb-3">💡 Nota: Os comandos `echo ... | sudo tee ...` e `sudo mosquitto_passwd ...` criam e populam os arquivos de configuração do Mosquitto diretamente. Você pode também usar `sudo nano ./mosquitto/config/mosquitto.conf` para editar manualmente se preferir.</p>
+                        
+                        <p class="text-stone-700 mb-2"><strong>Alternativa para gerenciar usuários do Mosquitto (com o contêiner já rodando):</strong></p>
+                        <p class="text-stone-700 mb-1">Após iniciar os serviços com `docker compose up -d`, se precisar adicionar ou modificar usuários no Mosquitto, você pode executar o seguinte comando no terminal do Raspberry Pi:</p>
+                        <pre class="code-block mb-3">
+sudo docker exec -it mosquitto mosquitto_passwd -b /mosquitto/config/password_file nome_do_novo_usuario senha_do_novo_usuario</pre>
+                        <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                        <p class="text-sm text-stone-600 mb-3">Este comando executa `mosquitto_passwd` dentro do contêiner `mosquitto` para adicionar/atualizar um usuário no arquivo de senhas que está montado. Lembre-se que o arquivo `/mosquitto/config/password_file` dentro do contêiner é o mesmo que está em `./mosquitto/config/password_file` no seu Raspberry Pi devido ao volume montado.</p>
+
+                        <h4 class="text-lg font-medium text-emerald-600 mt-4 mb-2">4. Criar arquivo `docker-compose.yml`:</h4>
+                        <p class="text-stone-700 mb-1">Ainda no diretório `~/iot_compressor`, crie um arquivo chamado `docker-compose.yml` (ex: `nano docker-compose.yml`) com o seguinte conteúdo:</p>
+                        <pre class="code-block mb-3">
+version: '3.8'
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2.0 
+    container_name: mosquitto
+    ports:
+      - "1883:1883" 
+      - "9001:9001" 
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./mosquitto/config/password_file:/mosquitto/config/password_file:ro
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    restart: unless-stopped
+
+  nodered:
+    image: nodered/node-red:latest-minimal 
+    container_name: nodered
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./nodered_data:/data
+    user: "${UID_GID}" 
+    depends_on:
+      - mosquitto
+      - influxdb
+    environment:
+      - TZ=America/Sao_Paulo 
+    restart: unless-stopped
+
+  influxdb:
+    image: influxdb:1.8.10 
+    container_name: influxdb
+    ports:
+      - "8086:8086"
+    volumes:
+      - ./influxdb_data:/var/lib/influxdb
+    environment:
+      - INFLUXDB_DB=compressor_data 
+      - INFLUXDB_ADMIN_USER=mava
+      - INFLUXDB_ADMIN_PASSWORD=mava
+      - INFLUXDB_HTTP_AUTH_ENABLED=true
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:9.5.16 
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana_data:/var/lib/grafana
+    user: "${UID_GID}" 
+    depends_on:
+      - influxdb
+    environment:
+      - GF_SECURITY_ADMIN_USER=mava
+      - GF_SECURITY_ADMIN_PASSWORD=mava
+    restart: unless-stopped
+
+networks:
+  default:
+    driver: bridge
+</pre>
+                        <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                        <p class="text-sm text-amber-700 mt-2">💡 Nota sobre Permissões de Volume e `UID_GID`:
+                            <ul class="list-disc list-inside text-sm text-amber-700 space-y-1">
+                                 <li>Adicionamos `user: "${UID_GID}"` para Node-RED e Grafana para que os contêineres rodem com o ID do seu usuário atual no Raspberry Pi. Isso ajuda a evitar problemas de permissão com os arquivos criados nos volumes montados. Antes de rodar `docker compose up`, você pode precisar definir essa variável no seu terminal (ou adicionar ao seu `.bashrc` ou `.profile`): <code class="text-xs bg-stone-200 p-1 rounded">export UID_GID=$(id -u):$(id -g)</code>.</li>
+                                 <li>Os arquivos de configuração do Mosquitto (`mosquitto.conf` e `password_file`) são montados como read-only (`:ro`) dentro do contêiner para maior segurança, já que são gerenciados no host.</li>
+                                 <li>Se ainda encontrar problemas de permissão com os volumes `data` e `log` do Mosquitto, ou `influxdb_data`, pode ser necessário ajustar o proprietário ou as permissões dessas pastas no host (Raspberry Pi). Comandos como `sudo chown -R 1000:1000 ./mosquitto/data ./mosquitto/log ./influxdb_data` (assumindo que o usuário dentro do contêiner tem ID 1000) ou, para um acesso mais amplo durante o desenvolvimento (menos seguro), `sudo chmod -R 777 ./pasta_com_problema` podem ser tentados. Verifique os logs do Docker para identificar qual usuário/grupo o contêiner está usando.</li>
+                            </ul>
+                        </p>
+
+
+                        <h4 class="text-lg font-medium text-emerald-600 mt-4 mb-2">5. Iniciar os Serviços:</h4>
+                        <p class="text-stone-700 mb-1">No diretório `~/iot_compressor` (onde está o `docker-compose.yml`), execute:</p>
+                        <pre class="code-block mb-3">
+# Se você não exportou UID_GID globalmente, pode fazer isso antes do comando up:
+export UID_GID=$(id -u):$(id -g)
+sudo docker compose up -d</pre>
+                        <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                        <p class="text-stone-700">Isso baixará as imagens (se ainda não existirem localmente) e iniciará os contêineres em segundo plano. Você pode verificar os logs com `sudo docker compose logs -f nome_do_servico` (ex: `sudo docker compose logs -f mosquitto`).</p>
+                        <p class="text-stone-700">Acessos padrão (substitua `IP_DO_SEU_RASPBERRY_PI` pelo IP real):
+                            <ul class="list-disc list-inside text-stone-700">
+                                <li>Node-RED: <code class="text-xs bg-stone-200 p-1 rounded">http://IP_DO_SEU_RASPBERRY_PI:1880</code></li>
+                                <li>Grafana: <code class="text-xs bg-stone-200 p-1 rounded">http://IP_DO_SEU_RASPBERRY_PI:3000</code> (usuário/senha: mava/mava)</li>
+                                <li>InfluxDB API: <code class="text-xs bg-stone-200 p-1 rounded">http://IP_DO_SEU_RASPBERRY_PI:8086</code></li>
+                                <li>Mosquitto MQTT: Porta <code class="text-xs bg-stone-200 p-1 rounded">1883</code> (com autenticação: usuário `mava`, senha `mava`)</li>
+                            </ul>
+                        </p>
+                    </div>
+                </details>
+
+                <details id="projeto-esp32" class="content-section bg-white p-6 rounded-lg shadow mb-6">
+                    <summary class="text-2xl">Passo 3: Programando o ESP32 (com Calibração Automática e Autenticação MQTT)</summary>
+                    <div class="mt-4">
+                        <p class="text-stone-700 mb-3">
+                            O ESP32 será responsável por ler os dados do sensor MPU6050, calibrá-lo automaticamente no início, processá-los minimamente e enviá-los via MQTT para o broker Mosquitto no Raspberry Pi. Usaremos a Arduino IDE com o core ESP32 instalado.
+                        </p>
+                        <h4 class="text-lg font-medium text-emerald-600 mt-4 mb-2">1. Configurar Arduino IDE:</h4>
+                         <p class="text-stone-700 mb-3">
+                            Se ainda não o fez, adicione o suporte para ESP32 na Arduino IDE:
+                            Vá em `File > Preferences` e adicione a URL `https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json` em "Additional Boards Manager URLs".
+                            Depois, vá em `Tools > Board > Boards Manager...`, procure por "esp32" e instale o pacote da Espressif Systems.
+                        </p>
+                        <h4 class="text-lg font-medium text-emerald-600 mt-4 mb-2">2. Instalar Bibliotecas:</h4>
+                        <p class="text-stone-700 mb-3">
+                            Pelo Library Manager (`Sketch > Include Library > Manage Libraries...`):
+                        </p>
+                        <ul class="list-disc list-inside text-stone-700 space-y-1 mb-3">
+                            <li><strong>Adafruit MPU6050</strong> (por Adafruit)</li>
+                            <li><strong>Adafruit Unified Sensor</strong> (dependência da Adafruit MPU6050)</li>
+                            <li><strong>PubSubClient</strong> (por Nick O'Leary) - para MQTT</li>
+                            <li><strong>ArduinoJson</strong> (por Benoit Blanchon) - para formatar dados em JSON (opcional, mas recomendado)</li>
+                            <li>(Opcional para Telegram) <strong>UniversalTelegramBot</strong> (por Brian Lough) - se for implementar o alerta via Telegram</li>
+                        </ul>
+                        <h4 class="text-lg font-medium text-emerald-600 mt-4 mb-2">3. Código Exemplo para ESP32 com Calibração e Autenticação MQTT:</h4>
+                        <p class="text-stone-700 mb-1">Este é um código base com calibração automática e autenticação MQTT. Adapte conforme suas necessidades (SSID, senha da rede, IP do broker, etc.).</p>
+                        <pre class="code-block mb-3">
+#include &lt;WiFi.h&gt;
+#include &lt;PubSubClient.h&gt;
+#include &lt;Adafruit_MPU6050.h&gt;
+#include &lt;Adafruit_Sensor.h&gt;
+#include &lt;Wire.h&gt;
+// #include &lt;ArduinoJson.h&gt; // Descomente se for usar ArduinoJson
+// #include &lt;UniversalTelegramBot.h&gt; // Descomente para Telegram
+// #include &lt;WiFiClientSecure.h&gt; // Descomente para Telegram com HTTPS
+
+// Configurações de Rede
+const char* ssid = "SUA_REDE_WIFI";
+const char* password = "SUA_SENHA_WIFI";
+
+// Configurações MQTT
+const char* mqtt_server = "IP_DO_SEU_RASPBERRY_PI"; // Ex: "192.168.1.100"
+const int mqtt_port = 1883;
+const char* mqtt_user = "mava"; 
+const char* mqtt_password = "mava"; 
+const char* temperature_topic = "Compressor/Temperatura";
+const char* vibration_topic = "Compressor/Vibracao"; 
+const char* axes_data_topic = "Compressor/DeslocamentoEixos";
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+Adafruit_MPU6050 mpu;
+
+// Variáveis para armazenar os offsets da calibração
+float accel_x_offset = 0.0;
+float accel_y_offset = 0.0;
+float accel_z_offset = 0.0;
+float gyro_x_offset = 0.0;
+float gyro_y_offset = 0.0;
+float gyro_z_offset = 0.0;
+
+const int CALIBRATION_SAMPLES = 1000; // Número de amostras para calibração
+
+void calibrateMPU6050() {
+  Serial.println("Iniciando calibração do MPU6050... Mantenha o sensor parado.");
+  long accel_x_sum = 0;
+  long accel_y_sum = 0;
+  long accel_z_sum = 0;
+  long gyro_x_sum = 0;
+  long gyro_y_sum = 0;
+  long gyro_z_sum = 0;
+
+  sensors_event_t a, g, temp; // Variáveis temporárias para leitura
+
+  for (int i = 0; i < CALIBRATION_SAMPLES; i++) {
+    mpu.getEvent(&a, &g, &temp);
+    accel_x_sum += a.acceleration.x * 100; 
+    accel_y_sum += a.acceleration.y * 100;
+    accel_z_sum += (a.acceleration.z - 9.81) * 100; 
+    gyro_x_sum += g.gyro.x * 100;
+    gyro_y_sum += g.gyro.y * 100;
+    gyro_z_sum += g.gyro.z * 100;
+    delay(3); 
+  }
+
+  accel_x_offset = (float)accel_x_sum / CALIBRATION_SAMPLES / 100.0;
+  accel_y_offset = (float)accel_y_sum / CALIBRATION_SAMPLES / 100.0;
+  accel_z_offset = (float)accel_z_sum / CALIBRATION_SAMPLES / 100.0;
+  gyro_x_offset = (float)gyro_x_sum / CALIBRATION_SAMPLES / 100.0;
+  gyro_y_offset = (float)gyro_y_sum / CALIBRATION_SAMPLES / 100.0;
+  gyro_z_offset = (float)gyro_z_sum / CALIBRATION_SAMPLES / 100.0;
+
+  Serial.println("Calibração concluída.");
+  Serial.print("Offsets Acel (x,y,z): ");
+  Serial.print(accel_x_offset); Serial.print(", ");
+  Serial.print(accel_y_offset); Serial.print(", ");
+  Serial.println(accel_z_offset);
+  Serial.print("Offsets Giro (x,y,z): ");
+  Serial.print(gyro_x_offset); Serial.print(", ");
+  Serial.print(gyro_y_offset); Serial.print(", ");
+  Serial.println(gyro_z_offset);
+  Serial.println("------------------------------------");
+}
+
+
+void setup_wifi() {
+  delay(10);
+  Serial.println();
+  Serial.print("Conectando a ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.println("WiFi conectado!");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+}
+
+void reconnect_mqtt() {
+  while (!client.connected()) {
+    Serial.print("Tentando conexão MQTT...");
+    String clientId = "ESP32Client-";
+    clientId += String(random(0xffff), HEX);
+    if (client.connect(clientId.c_str(), mqtt_user, mqtt_password)) { 
+      Serial.println("Conectado ao broker MQTT!");
+    } else {
+      Serial.print("Falha, rc=");
+      Serial.print(client.state());
+      Serial.println(" Tentando novamente em 5 segundos");
+      delay(5000);
+    }
+  }
+}
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin(); 
+
+  if (!mpu.begin()) {
+    Serial.println("Falha ao encontrar o chip MPU6050. Verifique as conexões!");
+    while (1) {
+      delay(10);
+    }
+  }
+  Serial.println("MPU6050 Encontrado!");
+
+  mpu.setAccelerometerRange(MPU6050_RANGE_8_G); 
+  mpu.setGyroRange(MPU6050_RANGE_500_DEG);    
+  mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);  
+
+  calibrateMPU6050(); 
+
+  setup_wifi();
+  client.setServer(mqtt_server, mqtt_port);
+}
+
+void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    Serial.println("Conexão WiFi perdida. Tentando reconectar...");
+    setup_wifi(); // Tenta reconectar o WiFi
+    return; // Pula o resto do loop até o WiFi estar ok
+  }
+
+  if (!client.connected()) {
+    reconnect_mqtt();
+  }
+  client.loop(); 
+
+  sensors_event_t a_raw, g_raw, temp_event;
+  mpu.getEvent(&a_raw, &g_raw, &temp_event);
+
+  float temperatura = temp_event.temperature;
+  
+  float acc_x = a_raw.acceleration.x - accel_x_offset;
+  float acc_y = a_raw.acceleration.y - accel_y_offset;
+  float acc_z = a_raw.acceleration.z - accel_z_offset; 
+  
+  float gyro_x = g_raw.gyro.x - gyro_x_offset;
+  float gyro_y = g_raw.gyro.y - gyro_y_offset;
+  float gyro_z = g_raw.gyro.z - gyro_z_offset;
+
+  float vibration_magnitude = sqrt(acc_x*acc_x + acc_y*acc_y + acc_z*acc_z);
+
+  char temp_str[8];
+  dtostrf(temperatura, 1, 2, temp_str); 
+  client.publish(temperature_topic, temp_str);
+  Serial.print("Temperatura: "); Serial.print(temp_str); Serial.println(" °C");
+
+  char vib_str[8];
+  dtostrf(vibration_magnitude, 1, 2, vib_str);
+  client.publish(vibration_topic, vib_str);
+  Serial.print("Vibração (Magnitude Accel Calibrada): "); Serial.println(vib_str);
+
+  String axes_payload = "{";
+  axes_payload += "\"ax\":" + String(acc_x, 2) + ",";
+  axes_payload += "\"ay\":" + String(acc_y, 2) + ",";
+  axes_payload += "\"az\":" + String(acc_z, 2) + ",";
+  axes_payload += "\"gx\":" + String(gyro_x, 2) + ",";
+  axes_payload += "\"gy\":" + String(gyro_y, 2) + ",";
+  axes_payload += "\"gz\":" + String(gyro_z, 2);
+  axes_payload += "}";
+  client.publish(axes_data_topic, axes_payload.c_str());
+  Serial.print("Dados dos Eixos Calibrados (JSON): "); Serial.println(axes_payload);
+  
+  delay(5000); 
+}
+</pre>
+                        <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                        <p class="text-sm text-amber-700 mt-2">💡 Lembretes:
+                            <ul class="list-disc list-inside text-sm text-amber-700 space-y-1">
+                                <li>Substitua `SUA_REDE_WIFI`, `SUA_SENHA_WIFI` e `IP_DO_SEU_RASPBERRY_PI`.</li>
+                                <li>O usuário e senha MQTT (`mava`/`mava`) estão definidos no código. Ajuste se usou credenciais diferentes no Mosquitto.</li>
+                                <li><strong>Importante para Calibração:</strong> Mantenha o sensor MPU6050 parado e nivelado durante a calibração inicial.</li>
+                            </ul>
+                        </p>
+                    </div>
+                </details>
+
+                <details id="projeto-nodered" class="content-section bg-white p-6 rounded-lg shadow mb-6">
+                    <summary class="text-2xl">Passo 4: Fluxo de Dados com Node-RED</summary>
+                    <div class="mt-4">
+                        <p class="text-stone-700 mb-3">
+                            Node-RED (<code class="text-xs bg-stone-200 p-1 rounded">http://IP_DO_SEU_RASPBERRY_PI:1880</code>) será usado para se inscrever nos tópicos MQTT, processar os dados e enviá-los para o InfluxDB.
+                        </p>
+                        <h4 class="text-lg font-medium text-emerald-600 mt-4 mb-2">1. Configurando o Nó MQTT In:</h4>
+                        <p class="text-stone-700 mb-1">Ao adicionar um nó `mqtt in`:</p>
+                        <ul class="list-disc list-inside text-stone-700 space-y-1 mb-3">
+                            <li><strong>Server:</strong> Clique no lápis para adicionar/editar o broker.
+                                <ul class="list-circle list-inside ml-4">
+                                    <li>Name: Um nome (ex: MeuBrokerMosquitto).</li>
+                                    <li>Server: `IP_DO_SEU_RASPBERRY_PI`</li>
+                                    <li>Port: `1883`</li>
+                                    <li>Client ID: Deixe em branco para gerar automaticamente ou defina um único.</li>
+                                    <li>Na aba "Security", coloque Username: `mava` e Password: `mava`.</li>
+                                </ul>
+                            </li>
+                            <li><strong>Topic:</strong> `Compressor/Temperatura` (e crie nós separados para `Compressor/Vibracao` e `Compressor/DeslocamentoEixos`).</li>
+                            <li><strong>Output:</strong> "a parsed JSON object" se o payload for JSON (como em `Compressor/DeslocamentoEixos`), ou "a string" para valores simples que serão convertidos depois.</li>
+                        </ul>
+                        <h4 class="text-lg font-medium text-emerald-600 mt-4 mb-2">2. Processando e Enviando para InfluxDB:</h4>
+                        <p class="text-stone-700 mb-1">Conecte os nós `mqtt in` a nós `function` (se necessário para conversão) e depois a nós `influxdb out`.</p>
+                         <ul class="list-disc list-inside text-stone-700 space-y-1 mb-3">
+                            <li><strong>Nó `function` (Exemplo para Temperatura/Vibração se vierem como string):</strong>
+                                <pre class="code-block text-xs my-1">msg.payload = parseFloat(msg.payload);
+return msg;</pre>
+                                <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                            </li>
+                             <li><strong>Nó `influxdb out`:</strong>
+                                <ul class="list-circle list-inside ml-4">
+                                    <li>Server: Clique no lápis para adicionar/editar.
+                                        <ul class="list-disc list-inside ml-6">
+                                            <li>Name: Um nome (ex: MeuInfluxDB).</li>
+                                            <li>Host: `influxdb` (nome do serviço Docker) ou `IP_DO_SEU_RASPBERRY_PI`.</li>
+                                            <li>Port: `8086`.</li>
+                                            <li>Database: `compressor_data`.</li>
+                                            <li>Username: `mava`.</li>
+                                            <li>Password: `mava`.</li>
+                                            <li>Version: 1.x</li> </ul>
+                                    </li>
+                                    <li>Measurement: Um nome para a "tabela" (ex: `temperatura_compressor`, `vibracao_compressor`, `eixos_compressor`).</li>
+                                    <li>Para `eixos_compressor`, se o `msg.payload` do MQTT já for um objeto JSON (após o nó `json` ou se o ESP32 enviar assim), o nó InfluxDB mapeará os campos automaticamente. Se for um valor único (temperatura), ele será o campo `value`.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <p class="text-sm text-stone-600 mt-2">Lembre-se de instalar os nós `node-red-contrib-influxdb` via "Manage Palette" se não estiverem disponíveis.</p>
+                    </div>
+                </details>
+
+                <details id="projeto-grafana" class="content-section bg-white p-6 rounded-lg shadow mb-6">
+                    <summary class="text-2xl">Passo 5: Visualização com Grafana</summary>
+                    <div class="mt-4">
+                        <p class="text-stone-700 mb-3">
+                            Grafana (<code class="text-xs bg-stone-200 p-1 rounded">http://IP_DO_SEU_RASPBERRY_PI:3000</code>, user/pass: mava/mava) é uma poderosa ferramenta de visualização. Vamos conectá-la ao InfluxDB e criar dashboards profissionais.
+                        </p>
+                        <h4 class="text-lg font-medium text-emerald-600 mt-4 mb-2">1. Adicionar Data Source (InfluxDB):</h4>
+                        <ul class="list-disc list-inside text-stone-700 space-y-1 mb-3">
+                            <li>No menu lateral do Grafana, vá em `Connections (ícone de conexões) > Add new connection`. Procure por "InfluxDB".</li>
+                            <li>Configurações:
+                                <ul class="list-circle list-inside ml-4">
+                                    <li>Name: Um nome para a fonte de dados (ex: MeuInfluxDB_Compressores).</li>
+                                    <li>Query Language: InfluxQL.</li>
+                                    <li>HTTP URL: <code class="text-xs bg-stone-200 p-1 rounded">http://influxdb:8086</code>.</li>
+                                    <li>Auth: Basic auth. User: `mava`, Password: `mava`.</li>
+                                    <li>Database: `compressor_data`.</li>
+                                </ul>
+                            </li>
+                            <li>Clique em "Save & Test". Deve aparecer uma mensagem de sucesso ("Data source is working").</li>
+                        </ul>
+
+                        <h4 class="text-lg font-medium text-emerald-600 mt-4 mb-2">2. Criar um Dashboard:</h4>
+                        <ul class="list-disc list-inside text-stone-700 space-y-1 mb-3">
+                            <li>No menu lateral, clique em `Dashboards (ícone de dashboard) > New > New Dashboard`.</li>
+                            <li>Clique em "Add visualization".</li>
+                            <li>No editor de painel:
+                                <ul class="list-circle list-inside ml-4">
+                                    <li>Data source: Selecione a fonte de dados InfluxDB que você criou.</li>
+                                    <li>Query: Use o editor de query do InfluxDB (InfluxQL).
+                                        <p class="my-1">Exemplo de query InfluxQL para temperatura:</p>
+                                        <pre class="code-block text-xs">
+SELECT mean("value") FROM "temperatura_compressor" WHERE $timeFilter GROUP BY time($__interval) fill(null)
+</pre>
+                                        <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                                        <p class="my-1">Exemplo para vibração:</p>
+                                        <pre class="code-block text-xs">
+SELECT mean("value") FROM "vibracao_compressor" WHERE $timeFilter GROUP BY time($__interval) fill(null)
+</pre>
+                                        <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                                         <p class="my-1">Exemplo para um dos eixos (ex: aceleração em x de `eixos_compressor`):</p>
+                                        <pre class="code-block text-xs">
+SELECT mean("ax") FROM "eixos_compressor" WHERE $timeFilter GROUP BY time($__interval) fill(null)
+</pre>
+                                        <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                                    </li>
+                                    <li>Visualization: Escolha um tipo de gráfico (ex: Time series, Gauge, Stat).</li>
+                                    <li>Ajuste as opções do painel (título, eixos, cores, etc.) nas abas à direita.</li>
+                                </ul>
+                            </li>
+                            <li>Clique em "Apply" para salvar o painel e depois salve o dashboard (ícone de disquete no topo), dando um nome a ele.</li>
+                        </ul>
+                         <p class="text-stone-700 mb-3">
+                            Experimente diferentes tipos de visualizações e queries para explorar os dados coletados!
+                        </p>
+                        <div class="chart-container my-4">
+                            <canvas id="illustrativeTempChart"></canvas>
+                        </div>
+                        <p class="text-sm text-center text-stone-600">Exemplo ilustrativo de como um gráfico de temperatura pode aparecer.</p>
+                    </div>
+                </details>
+            </section>
+
+            <section id="documentacao" class="content-section bg-white p-6 rounded-lg shadow">
+                <h2 class="text-3xl font-semibold text-emerald-700 mb-4">📄 Documentação e Recursos</h2>
+                <p class="text-lg text-stone-700 mb-6">
+                    Para aprofundar seus conhecimentos nas tecnologias utilizadas neste curso, compilamos uma lista de recursos oficiais e documentações. Consultar esses materiais é fundamental para entender completamente cada componente e explorar funcionalidades avançadas.
+                </p>
+
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-2xl font-medium text-emerald-600 mb-3">Hardware</h3>
+                        <div class="ml-4 space-y-6">
+                            <div>
+                                <h4 class="text-xl font-semibold text-emerald-600">Raspberry Pi</h4>
+                                <p class="text-stone-700 mb-2">
+                                    O Raspberry Pi é uma série de computadores de placa única (SBC - Single Board Computer) de baixo custo, incrivelmente versátil. Ele pode rodar um sistema operacional completo (geralmente uma distribuição Linux como o Raspberry Pi OS) e é usado para uma infinidade de projetos, desde servidores caseiros, centrais de mídia, automação residencial, até robótica e, claro, como um hub central em projetos de IoT, como o nosso.
+                                </p>
+                                <p class="text-stone-700 mb-2">Principais Características (comparativo simplificado):</p>
+                                <div class="overflow-x-auto">
+                                    <table class="comparison-table text-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Modelo</th>
+                                                <th>Processador (CPU)</th>
+                                                <th>Clock (Aprox.)</th>
+                                                <th>Memória RAM</th>
+                                                <th>Conectividade Chave</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Pi 3 Model B+</td>
+                                                <td>Broadcom BCM2837B0, Quad-core Cortex-A53 (ARMv8) 64-bit</td>
+                                                <td>1.4 GHz</td>
+                                                <td>1GB LPDDR2 SDRAM</td>
+                                                <td>Wi-Fi 2.4/5GHz, Bluetooth 4.2/BLE, Gigabit Ethernet (via USB 2.0, max 300Mbps), 4x USB 2.0</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Pi 4 Model B</td>
+                                                <td>Broadcom BCM2711, Quad-core Cortex-A72 (ARMv8) 64-bit</td>
+                                                <td>1.5 GHz (modelos recentes 1.8GHz)</td>
+                                                <td>1GB, 2GB, 4GB, ou 8GB LPDDR4-3200 SDRAM</td>
+                                                <td>Wi-Fi 2.4/5GHz, Bluetooth 5.0/BLE, Gigabit Ethernet, 2x USB 3.0, 2x USB 2.0, 2x micro-HDMI</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Pi 5</td>
+                                                <td>Broadcom BCM2712, Quad-core Cortex-A76 (ARMv8.2-A) 64-bit</td>
+                                                <td>2.4 GHz</td>
+                                                <td>4GB ou 8GB LPDDR4X-4267 SDRAM</td>
+                                                <td>Wi-Fi 2.4/5GHz, Bluetooth 5.0/BLE, Gigabit Ethernet, 2x USB 3.0, 2x USB 2.0, 2x micro-HDMI (suporte a 4Kp60 dual), Interface PCIe 2.0 x1</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <ul class="list-disc list-inside text-stone-700 mt-2">
+                                    <li>Site Oficial: <a href="https://www.raspberrypi.org/" target="_blank" rel="noopener noreferrer" class="external-link">Raspberry Pi Foundation</a></li>
+                                    <li>Documentação: <a href="https://www.raspberrypi.org/documentation/" target="_blank" rel="noopener noreferrer" class="external-link">Raspberry Pi Documentation</a></li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 class="text-xl font-semibold text-emerald-600">ESP32</h4>
+                                <p class="text-stone-700 mb-2">
+                                    O ESP32 é um microcontrolador System-on-a-Chip (SoC) de baixo custo e baixo consumo de energia, com Wi-Fi e Bluetooth (clássico e BLE) integrados. Desenvolvido pela Espressif Systems, ele é extremamente popular em projetos de IoT devido à sua combinação de poder de processamento, conectividade e grande quantidade de pinos de entrada/saída (GPIOs).
+                                </p>
+                                <p class="text-stone-700 mb-2">Principais Características:</p>
+                                <ul class="list-disc list-inside text-stone-700 space-y-1">
+                                    <li><strong>Processador:</strong> Geralmente um dual-core Xtensa LX6 (ou LX7 em versões mais novas), com clock de até 240 MHz. Alguns modelos possuem um co-processador ULP (Ultra Low Power) para tarefas de baixo consumo.</li>
+                                    <li><strong>Conectividade:</strong> Wi-Fi 802.11 b/g/n e Bluetooth v4.2 BR/EDR e BLE.</li>
+                                    <li><strong>Periféricos:</strong> ADC (Conversor Analógico-Digital), DAC (Conversor Digital-Analógico), I2C, SPI, UART, PWM, sensores de toque capacitivo, sensor Hall, etc.</li>
+                                    <li><strong>Memória:</strong> Varia conforme o módulo, mas inclui SRAM e Flash (para armazenamento do programa).</li>
+                                </ul>
+                                <p class="text-stone-700 mt-2 mb-2"><strong>ESP32 vs. Raspberry Pi: Qual a diferença?</strong></p>
+                                <ul class="list-disc list-inside text-stone-700 space-y-1">
+                                    <li><strong>ESP32 é um Microcontrolador (MCU):</strong> Focado em executar uma tarefa específica com alta eficiência e em tempo real. Não roda um sistema operacional complexo como o Linux. É ideal para ler sensores, controlar atuadores e se comunicar sem fio com baixo consumo.</li>
+                                    <li><strong>Raspberry Pi é um Microcomputador (SBC):</strong> Roda um sistema operacional completo (ex: Raspberry Pi OS, que é Linux). Tem muito mais poder de processamento, memória e capacidade de armazenamento. É ideal para tarefas mais complexas, como rodar servidores (web, MQTT, banco de dados), processamento de vídeo, ou como um desktop leve.</li>
+                                    <li>No nosso projeto, o ESP32 é o "coletor de dados" na ponta, e o Raspberry Pi é o "servidor central" que recebe, armazena e permite a visualização desses dados.</li>
+                                </ul>
+                                <ul class="list-disc list-inside text-stone-700 mt-2">
+                                    <li>Site Oficial: <a href="https://www.espressif.com/en/products/socs/esp32" target="_blank" rel="noopener noreferrer" class="external-link">Espressif ESP32</a></li>
+                                    <li>Documentação ESP-IDF (Framework de Desenvolvimento): <a href="https://docs.espressif.com/projects/esp-idf/en/latest/esp32/" target="_blank" rel="noopener noreferrer" class="external-link">ESP-IDF Programming Guide</a></li>
+                                    <li>Datasheet (Exemplo para ESP32-WROOM-32UE): <a href="https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32ue_datasheet_en.pdf" target="_blank" rel="noopener noreferrer" class="external-link">ESP32-WROOM-32UE Datasheet</a></li>
+                                </ul>
+                            </div>
+
+                            <div>
+                                <h4 class="text-xl font-semibold text-emerald-600">MPU6050</h4>
+                                <p class="text-stone-700 mb-2">
+                                    O MPU6050 é uma Unidade de Medição Inercial (IMU - Inertial Measurement Unit) de 6 graus de liberdade (6-DoF). Ele combina um acelerômetro de 3 eixos e um giroscópio de 3 eixos em um único chip, além de um sensor de temperatura embutido. Possui um Processador de Movimento Digital (DMP - Digital Motion Processor™) capaz de realizar cálculos complexos de fusão de sensores diretamente no chip, aliviando a carga do microcontrolador principal.
+                                </p>
+                                <ul class="list-disc list-inside text-stone-700 space-y-1">
+                                    <li><strong>Acelerômetro:</strong> Mede a aceleração linear (incluindo a força da gravidade). Útil para detectar orientação, inclinação e vibração.</li>
+                                    <li><strong>Giroscópio:</strong> Mede a velocidade angular (rotação). Útil para detectar o quão rápido algo está girando em torno dos eixos X, Y e Z.</li>
+                                    <li><strong>Comunicação:</strong> Utiliza o protocolo I²C para se comunicar com o microcontrolador (como o ESP32).</li>
+                                </ul>
+                                <ul class="list-disc list-inside text-stone-700 mt-2">
+                                    <li>Informações sobre o produto (TDK/InvenSense): <a href="https://invensense.tdk.com/products/motion-tracking/6-axis/mpu-6050/" target="_blank" rel="noopener noreferrer" class="external-link">MPU-6050 Product Page</a></li>
+                                    <li>Datasheet: <a href="https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf" target="_blank" rel="noopener noreferrer" class="external-link">MPU-6050 Datasheet</a></li>
+                                    <li>Register Map: <a href="https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Register-Map1.pdf" target="_blank" rel="noopener noreferrer" class="external-link">MPU-6050 Register Map</a> (Essencial para programação avançada).</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-2xl font-medium text-emerald-600 mb-3">Software e Plataformas</h3>
+                        <div class="ml-4 space-y-6">
+                            <div>
+                                <h4 class="text-xl font-semibold text-emerald-600">Raspberry Pi OS</h4>
+                                <p class="text-stone-700 mb-2">
+                                    Anteriormente conhecido como Raspbian, o Raspberry Pi OS é o sistema operacional oficial suportado pela Raspberry Pi Foundation. É uma distribuição Linux baseada no Debian, otimizada especificamente para o hardware do Raspberry Pi. Ele vem com uma variedade de softwares pré-instalados para educação, programação e uso geral. Pode ser usado com uma interface gráfica de desktop completa ou em modo "headless" (sem monitor, teclado ou mouse, acessado remotamente via SSH).
+                                </p>
+                                <ul class="list-disc list-inside text-stone-700 mt-1">
+                                    <li>Download e Informações: <a href="https://www.raspberrypi.org/software/" target="_blank" rel="noopener noreferrer" class="external-link">Raspberry Pi OS</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-semibold text-emerald-600">Docker e Contêineres</h4>
+                                <p class="text-stone-700 mb-2">
+                                    <strong>Docker</strong> é uma plataforma de software que permite criar, testar e implantar aplicativos rapidamente em ambientes isolados chamados **contêineres**.
+                                </p>
+                                <p class="text-stone-700 mb-2">
+                                    Um <strong>contêiner</strong> é uma unidade padrão de software que "empacota" o código de uma aplicação e todas as suas dependências (bibliotecas, ferramentas de sistema, runtime, etc.). Isso garante que a aplicação rode de forma consistente em diferentes ambientes de computação (desenvolvimento, teste, produção, máquina do colega, nuvem, etc.), resolvendo o clássico problema do "mas na minha máquina funciona!".
+                                </p>
+                                <p class="text-stone-700 mb-2">Vantagens de usar Docker e contêineres:</p>
+                                <ul class="list-disc list-inside text-stone-700 space-y-1">
+                                    <li><strong>Isolamento:</strong> Aplicativos e suas dependências são isolados uns dos outros e do sistema operacional hospedeiro.</li>
+                                    <li><strong>Portabilidade:</strong> Contêineres podem ser executados em qualquer máquina que tenha Docker instalado.</li>
+                                    <li><strong>Eficiência:</strong> São mais leves que máquinas virtuais tradicionais, pois compartilham o kernel do sistema operacional hospedeiro.</li>
+                                    <li><strong>Reprodutibilidade:</strong> Garante que o ambiente de desenvolvimento seja idêntico ao de produção.</li>
+                                    <li><strong>Gerenciamento Simplificado:</strong> Facilita a instalação, atualização e remoção de software.</li>
+                                </ul>
+                                 <p class="text-stone-700 mt-2 mb-2">
+                                    <strong>Docker Compose</strong> é uma ferramenta para definir e executar aplicações Docker multi-contêiner. Com um único arquivo YAML (o `docker-compose.yml`), você configura todos os serviços da sua aplicação (como nosso Mosquitto, Node-RED, InfluxDB e Grafana), suas redes e volumes. Com o comando `docker compose up`, todos os serviços são iniciados e configurados conforme definido.
+                                </p>
+                                <ul class="list-disc list-inside text-stone-700 mt-1">
+                                    <li>Site Oficial: <a href="https://www.docker.com/" target="_blank" rel="noopener noreferrer" class="external-link">Docker</a></li>
+                                    <li>Documentação: <a href="https://docs.docker.com/" target="_blank" rel="noopener noreferrer" class="external-link">Docker Documentation</a></li>
+                                    <li>O que é um Contêiner (Docker): <a href="https://www.docker.com/resources/what-container/" target="_blank" rel="noopener noreferrer" class="external-link">What is a Container?</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-semibold text-emerald-600">MQTT (Message Queuing Telemetry Transport)</h4>
+                                <p class="text-stone-700 mb-2">
+                                    MQTT é um protocolo de mensagens leve, projetado para comunicação máquina-a-máquina (M2M) e Internet das Coisas (IoT). Ele opera sob o modelo de publicação/assinatura (publish/subscribe ou pub/sub).
+                                </p>
+                                <ul class="list-disc list-inside text-stone-700 space-y-1">
+                                    <li><strong>Leveza:</strong> Possui um cabeçalho de mensagem muito pequeno, o que o torna ideal para redes com largura de banda limitada ou dispositivos com poucos recursos.</li>
+                                    <li><strong>Publicação/Assinatura:</strong>
+                                        <ul>
+                                            <li><strong>Broker:</strong> Um servidor central (no nosso caso, o Mosquitto) que recebe todas as mensagens.</li>
+                                            <li><strong>Clientes (Publishers):</strong> Dispositivos que enviam mensagens (publicam) para o broker em um determinado "tópico". (Ex: nosso ESP32 publicando dados de temperatura).</li>
+                                            <li><strong>Clientes (Subscribers):</strong> Dispositivos ou aplicações que se registram (assinam) em tópicos de interesse no broker. Quando uma mensagem é publicada em um tópico, o broker a encaminha para todos os assinantes daquele tópico. (Ex: nosso Node-RED assinando os tópicos do ESP32).</li>
+                                            <li><strong>Tópicos:</strong> São strings hierárquicas (ex: `Compressor/Area1/Temperatura`) que funcionam como "endereços" para as mensagens.</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Qualidade de Serviço (QoS):</strong> MQTT define três níveis de QoS para garantir a entrega das mensagens, dependendo da criticidade da aplicação.</li>
+                                </ul>
+                                <p class="text-stone-700 mt-2 mb-2">
+                                    <strong>Mosquitto</strong> é uma implementação popular de broker MQTT de código aberto, leve e fácil de configurar.
+                                </p>
+                                <ul class="list-disc list-inside text-stone-700 mt-1">
+                                    <li>Site Oficial MQTT: <a href="https://mqtt.org/" target="_blank" rel="noopener noreferrer" class="external-link">MQTT.org</a></li>
+                                    <li>Site Oficial Mosquitto: <a href="https://mosquitto.org/" target="_blank" rel="noopener noreferrer" class="external-link">Eclipse Mosquitto</a></li>
+                                    <li>Documentação Mosquitto: <a href="https://mosquitto.org/documentation/" target="_blank" rel="noopener noreferrer" class="external-link">Mosquitto Documentation</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-semibold text-emerald-600">Node-RED</h4>
+                                <p class="text-stone-700 mb-2">
+                                    Node-RED é uma ferramenta de programação visual baseada em fluxo, originalmente desenvolvida pela IBM e agora um projeto da OpenJS Foundation. Ele permite conectar dispositivos de hardware, APIs e serviços online de forma gráfica e intuitiva.
+                                </p>
+                                <ul class="list-disc list-inside text-stone-700 space-y-1">
+                                    <li><strong>Fluxos e Nós:</strong> Você constrói aplicações arrastando "nós" (pequenos blocos de funcionalidade) de uma paleta para uma área de trabalho e conectando-os para criar "fluxos".</li>
+                                    <li><strong>Nós:</strong> Existem nós para diversas tarefas, como receber mensagens MQTT, fazer requisições HTTP, manipular dados com JavaScript (nó `function`), interagir com bancos de dados, controlar GPIOs, e muito mais. É possível instalar nós adicionais para expandir suas capacidades.</li>
+                                    <li><strong>Editor Baseado em Navegador:</strong> Todo o desenvolvimento do fluxo é feito em um editor web.</li>
+                                    <li><strong>Ideal para IoT:</strong> Facilita a prototipagem rápida, o processamento de dados de sensores, a criação de lógicas de controle e a integração com outras plataformas.</li>
+                                </ul>
+                                <ul class="list-disc list-inside text-stone-700 mt-1">
+                                    <li>Site Oficial: <a href="https://nodered.org/" target="_blank" rel="noopener noreferrer" class="external-link">Node-RED</a></li>
+                                    <li>Documentação: <a href="https://nodered.org/docs/" target="_blank" rel="noopener noreferrer" class="external-link">Node-RED Documentation</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-semibold text-emerald-600">InfluxDB</h4>
+                                <p class="text-stone-700 mb-2">
+                                    InfluxDB é um banco de dados NoSQL de código aberto, otimizado especificamente para armazenar e consultar dados de séries temporais (time-series data). Dados de séries temporais são sequências de valores medidos ao longo do tempo, como leituras de sensores, métricas de aplicações, dados de mercado financeiro, etc.
+                                </p>
+                                <ul class="list-disc list-inside text-stone-700 space-y-1">
+                                    <li><strong>Desempenho:</strong> Projetado para alta ingestão de dados (muitas escritas por segundo) e consultas rápidas sobre grandes volumes de dados temporais.</li>
+                                    <li><strong>Linguagem de Consulta:</strong> Utiliza InfluxQL (semelhante a SQL) ou Flux (uma linguagem de script mais poderosa) para interagir com os dados.</li>
+                                    <li><strong>Estrutura de Dados:</strong>
+                                        <ul>
+                                            <li><strong>Database:</strong> Contêiner lógico para os dados.</li>
+                                            <li><strong>Measurement:</strong> Similar a uma tabela em bancos relacionais, agrupa dados relacionados (ex: `temperatura_compressor`).</li>
+                                            <li><strong>Tags:</strong> Metadados indexados (ex: `localizacao="sala_maquinas"`, `sensor_id="temp01"`). Usados para filtrar e agrupar dados.</li>
+                                            <li><strong>Fields:</strong> Os valores dos dados em si (ex: `valor=25.7`, `umidade=60.2`). Não são indexados da mesma forma que as tags.</li>
+                                            <li><strong>Timestamp:</strong> Cada ponto de dado é associado a um timestamp preciso.</li>
+                                        </ul>
+                                    </li>
+                                    <li><strong>Retenção de Dados:</strong> Permite configurar políticas de retenção para automaticamente descartar dados antigos, gerenciando o espaço de armazenamento.</li>
+                                </ul>
+                                <ul class="list-disc list-inside text-stone-700 mt-1">
+                                    <li>Site Oficial: <a href="https://www.influxdata.com/products/influxdb-overview/" target="_blank" rel="noopener noreferrer" class="external-link">InfluxDB</a></li>
+                                    <li>Documentação (para v1.8 usada no projeto): <a href="https://docs.influxdata.com/influxdb/v1.8/" target="_blank" rel="noopener noreferrer" class="external-link">InfluxDB v1.8 Documentation</a></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 class="text-xl font-semibold text-emerald-600">Grafana</h4>
+                                <p class="text-stone-700 mb-2">
+                                    Grafana é uma plataforma de visualização e análise de dados de código aberto, amplamente utilizada para monitoramento. Ela permite que você consulte, visualize, alerte e entenda suas métricas, não importa onde elas estejam armazenadas.
+                                </p>
+                                <ul class="list-disc list-inside text-stone-700 space-y-1">
+                                    <li><strong>Dashboards Interativos:</strong> Permite criar dashboards ricos e dinâmicos com uma variedade de painéis de visualização (gráficos de linha, barras, gauges, tabelas, mapas de calor, etc.).</li>
+                                    <li><strong>Fontes de Dados (Data Sources):</strong> Suporta dezenas de fontes de dados, incluindo InfluxDB, Prometheus, MySQL, PostgreSQL, Elasticsearch, AWS CloudWatch, e muitas outras.</li>
+                                    <li><strong>Consultas Flexíveis:</strong> Cada painel tem um editor de consultas específico para a fonte de dados selecionada, permitindo buscar e transformar os dados para visualização.</li>
+                                    <li><strong>Alertas:</strong> Permite configurar regras de alerta com base em métricas e receber notificações por diversos canais.</li>
+                                    <li><strong>Comunidade e Plugins:</strong> Possui uma grande comunidade e um sistema de plugins que estende suas funcionalidades e tipos de visualização.</li>
+                                </ul>
+                                <ul class="list-disc list-inside text-stone-700 mt-1">
+                                    <li>Site Oficial: <a href="https://grafana.com/" target="_blank" rel="noopener noreferrer" class="external-link">Grafana</a></li>
+                                    <li>Documentação: <a href="https://grafana.com/docs/grafana/latest/" target="_blank" rel="noopener noreferrer" class="external-link">Grafana Documentation</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="impressao-3d" class="content-section bg-white p-6 rounded-lg shadow">
+                <h2 class="text-3xl font-semibold text-emerald-700 mb-4">🏗️ Módulo 4: Introdução à Impressão 3D</h2>
+                <p class="text-lg text-stone-700 mb-4">
+                    A impressão 3D, ou manufatura aditiva, é uma tecnologia revolucionária que permite criar objetos físicos tridimensionais a partir de um modelo digital. Neste módulo, faremos uma breve introdução a essa tecnologia, focando em como ela pode ser útil em projetos de IoT, como na criação de cases e suportes personalizados para seus dispositivos. Entender o básico da impressão 3D pode abrir novas possibilidades para a prototipagem e customização dos seus projetos.
+                </p>
+                <h3 class="text-2xl font-medium text-emerald-600 mt-6 mb-2">O que é Impressão 3D?</h3>
+                <p class="text-stone-700 mb-3">
+                    É o processo de construir um objeto camada por camada usando materiais como plástico, resina, metal ou outros. Um modelo digital 3D (geralmente um arquivo .STL ou .OBJ) é "fatiado" em centenas ou milhares de camadas horizontais, e a impressora 3D deposita ou solidifica o material de acordo com essas camadas até que o objeto esteja completo.
+                </p>
+                <h3 class="text-2xl font-medium text-emerald-600 mt-6 mb-2">Tipos Comuns de Impressoras e Materiais (Foco em FDM):</h3>
+                <p class="text-stone-700 mb-3">
+                    Existem várias tecnologias de impressão 3D. Para iniciantes e projetos de prototipagem, a mais comum é a FDM (Fused Deposition Modeling) ou FFF (Fused Filament Fabrication):
+                </p>
+                <ul class="list-disc list-inside text-stone-700 space-y-1 mb-3">
+                    <li><strong>Impressoras FDM:</strong> Utilizam um filamento de termoplástico que é aquecido e extrudado através de um bico, depositando o material derretido camada por camada. São relativamente acessíveis e fáceis de usar.</li>
+                    <li><strong>Materiais Comuns para FDM:</strong>
+                        <ul class="list-circle list-inside ml-4">
+                            <li><strong>PLA (Ácido Polilático):</strong> Bioplástico, fácil de imprimir, baixa toxicidade, bom para iniciantes. Ideal para protótipos rápidos e peças que não exigem alta resistência térmica ou mecânica.</li>
+                            <li><strong>ABS (Acrilonitrila Butadieno Estireno):</strong> Mais resistente e durável que o PLA, mas mais difícil de imprimir (requer mesa aquecida e emite odores).</li>
+                            <li><strong>PETG (Polietileno Tereftalato Glicol):</strong> Boa combinação de facilidade de impressão do PLA com a resistência do ABS, translúcido.</li>
+                        </ul>
+                    </li>
+                </ul>
+                 <h3 class="text-2xl font-medium text-emerald-600 mt-6 mb-2">Software de Modelagem 3D:</h3>
+                <p class="text-stone-700 mb-3">
+                    Para criar seus próprios modelos 3D, você precisará de um software CAD (Computer-Aided Design). Algumas opções populares para iniciantes:
+                </p>
+                <ul class="list-disc list-inside text-stone-700 space-y-1 mb-3">
+                    <li><strong>Tinkercad:</strong> Baseado em navegador, muito fácil de aprender, ótimo para formas geométricas simples e iniciantes.</li>
+                    <li><strong>Fusion 360 (Autodesk):</strong> Mais poderoso e profissional, gratuito para uso pessoal e startups. Curva de aprendizado maior, mas oferece recursos avançados.</li>
+                    <li><strong>Blender:</strong> Software de modelagem 3D open-source extremamente poderoso, usado para design, animação, VFX, etc. Curva de aprendizado íngreme, mas muito versátil.</li>
+                </ul>
+                 <p class="text-stone-700 mb-3">
+                    Existem também vastas bibliotecas online de modelos 3D prontos para download, como Thingiverse, MyMiniFactory e Cults3D.
+                </p>
+                <h3 class="text-2xl font-medium text-emerald-600 mt-6 mb-2">Criando um Case para o Projeto ESP32 + MPU6050:</h3>
+                <p class="text-stone-700 mb-3">
+                    Com a impressão 3D, você pode projetar e imprimir um case (invólucro) sob medida para seu ESP32 e MPU6050. Isso não apenas protege os componentes, mas também facilita a fixação do sensor no compressor ou em qualquer outro local.
+                </p>
+                <p class="text-stone-700">Considere ao projetar o case:</p>
+                <ul class="list-disc list-inside text-stone-700 space-y-1">
+                    <li>Dimensões exatas do ESP32 e MPU6050.</li>
+                    <li>Aberturas para portas (USB, alimentação) e LEDs.</li>
+                    <li>Pontos de montagem (furos para parafusos, encaixes).</li>
+                    <li>Ventilação, se necessário.</li>
+                    <li>Forma de acoplamento ao compressor (ex: garras, base magnética, furos para abraçadeiras).</li>
+                </ul>
+                <p class="text-stone-700 mt-3">
+                    Propor aos alunos que criem seus próprios designs para o case pode ser uma atividade prática e criativa excelente, conectando o mundo digital da IoT com a fabricação física.
+                </p>
+            </section>
+
+            <section id="conclusao" class="content-section bg-white p-6 rounded-lg shadow">
+                <h2 class="text-3xl font-semibold text-emerald-700 mb-4">🏁 Conclusão e Próximos Passos</h2>
+                <p class="text-lg text-stone-700 mb-4">
+                    Parabéns por chegar até aqui! Ao longo deste curso, exploramos os fundamentos da Internet das Coisas, vimos suas aplicações em diversos setores e, o mais importante, construímos um projeto prático de monitoramento do início ao fim. Esperamos que este curso tenha desmistificado a IoT e mostrado que, com as ferramentas e o conhecimento certos, é possível criar soluções inovadoras e funcionais.
+                </p>
+                <p class="text-stone-700 mb-3">
+                    O projeto de monitoramento de compressores é apenas um exemplo do que pode ser feito. As habilidades que você desenvolveu - trabalhar com sensores, microcontroladores, protocolos de comunicação, bancos de dados e ferramentas de visualização - são transferíveis para inúmeros outros projetos de IoT.
+                </p>
+                <h3 class="text-2xl font-medium text-emerald-600 mt-6 mb-2">O que vem a seguir?</h3>
+                <ul class="list-disc list-inside text-stone-700 space-y-2">
+                    <li><strong>Aprofunde-se:</strong> Explore outros sensores, microcontroladores (como Arduino, STM32) e plataformas de IoT (AWS IoT, Google Cloud IoT, Azure IoT).</li>
+                    <li><strong>Experimente:</strong> Modifique o projeto atual. Adicione novos sensores, implemente lógicas de controle, explore diferentes tipos de dashboards.</li>
+                    <li><strong>Crie o seu:</strong> Pense em um problema ou uma necessidade em sua área de estudo ou interesse. Como a IoT poderia ajudar? Comece a prototipar sua própria solução!</li>
+                    <li><strong>Comunidade:</strong> Participe de fóruns online, grupos de discussão e comunidades maker. Compartilhe seus projetos e aprenda com os outros.</li>
+                </ul>
+                <p class="text-stone-700 mt-4">
+                    A jornada na Internet das Coisas está apenas começando. Continue curioso, continue aprendendo e, acima de tudo, continue criando!
+                </p>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const sidebar = document.getElementById('sidebar');
+        mobileMenuButton.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // Close sidebar when a link is clicked on mobile
+        const sidebarLinks = sidebar.querySelectorAll('a');
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 768) { // md breakpoint
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+        });
+        
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    // Adjust scroll position to account for fixed header height
+                    const headerElement = document.querySelector('header');
+                    const headerHeight = headerElement ? headerElement.offsetHeight : 0;
+                    const elementPosition = targetElement.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: "smooth"
+                    });
+                }
+            });
+        });
+
+        // Copy code to clipboard
+        function copyCode(buttonElement) {
+            const preElement = buttonElement.previousElementSibling;
+            const code = preElement.innerText;
+            navigator.clipboard.writeText(code).then(() => {
+                buttonElement.innerText = 'Copiado!';
+                setTimeout(() => {
+                    buttonElement.innerText = '📋 Copiar';
+                }, 2000);
+            }).catch(err => {
+                console.error('Erro ao copiar código: ', err);
+                buttonElement.innerText = 'Erro';
+                 setTimeout(() => {
+                    buttonElement.innerText = '📋 Copiar';
+                }, 2000);
+            });
+        }
+
+        // Illustrative Chart.js example
+        const ctx = document.getElementById('illustrativeTempChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '00:05', '00:10', '00:15', '00:20', '00:25', '00:30'],
+                    datasets: [{
+                        label: 'Temperatura (°C) - Exemplo',
+                        data: [25.5, 25.8, 26.0, 25.7, 26.2, 26.5, 26.3],
+                        borderColor: 'rgb(5, 150, 105)', // emerald-600
+                        backgroundColor: 'rgba(5, 150, 105, 0.1)', // emerald-600 with alpha
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Temperatura (°C)'
+                            }
+                        },
+                        x: {
+                             title: {
+                                display: true,
+                                text: 'Tempo'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        legend: {
+                            labels: {
+                                // This more robustly handles long labels
+                                generateLabels: function(chart) {
+                                    const data = chart.data;
+                                    if (data.labels.length && data.datasets.length) {
+                                        return data.datasets.map(function(dataset, i) {
+                                            const meta = chart.getDatasetMeta(i);
+                                            const label = dataset.label || '';
+                                            // Simple 16-char wrap logic (example)
+                                            let displayLabel = label;
+                                            if (label.length > 16) {
+                                                displayLabel = label.substring(0, 16) + '...';
+                                            }
+                                            return {
+                                                text: displayLabel, // Use possibly truncated label
+                                                fillStyle: dataset.backgroundColor,
+                                                strokeStyle: dataset.borderColor,
+                                                lineWidth: dataset.borderWidth,
+                                                hidden: !meta.visible,
+                                                index: i
+                                            };
+                                        });
+                                    }
+                                    return [];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
